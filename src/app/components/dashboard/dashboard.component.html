@@ -1,0 +1,47 @@
+<div class="container">
+    <div class="row">
+        <div class="col-lg-4">
+            <h4 class="mt-2">Usage Statistics</h4>
+            <canvas id="barChart"></canvas>
+        </div>
+        <div class="col-lg-4">
+            <h4 class="mt-2 text-muted">To show advance analytics, please subscribe!</h4>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-muted text-uppercase text-center">silver plan</h5>
+                    <h6 class="text-center font-weight-bold"><span
+                            class="fs-2">$199</span>/mo
+                    </h6>
+                    <hr>
+                    <div class="d-flex flex-column justify-content-center">
+                        <ul type="none">
+                            <li>Access advanced analytics</li>
+                            <li>Billing analytics</li>
+                            <li>Bandwidth statics</li>
+                        </ul>
+                        <a href="javascript:void(0);" class="btn btn-primary" (click)="purchasePlan('silver')">BUY NOW</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-muted text-uppercase text-center">gold plan</h5>
+                    <h6 class="text-center font-weight-bold"><span
+                            class="fs-2">$399</span>/yr
+                    </h6>
+                    <hr>
+                    <div class="d-flex flex-column justify-content-center">
+                        <ul type="none">
+                            <li>Access advanced analytics</li>
+                            <li>Billing analytics</li>
+                            <li>Bandwidth statics</li>
+                        </ul>
+                        <a href="javascript:void(0);" class="btn btn-primary" (click)="purchasePlan('gold')">BUY NOW</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+</div>
