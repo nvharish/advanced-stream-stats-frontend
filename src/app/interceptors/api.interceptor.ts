@@ -13,13 +13,6 @@ import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class ApiInterceptor implements HttpInterceptor {
-  // private exclude_jwt: any = {
-  //   "/auth/token": "post",
-  //   "/payment-gateways": "get",
-  //   "/countries": "get",
-  //   "/users": "post",
-  //   "/plans": "get"
-  // };
   private total_requests: number = 0;
   private completed_requests: number = 0;
 
@@ -54,7 +47,7 @@ export class ApiInterceptor implements HttpInterceptor {
     return next.handle(request_clone).pipe(
       catchError((error: HttpErrorResponse) => {
         if (has_jwt) {
-          this.login_service.logout();
+          //this.login_service.logout();
         }
         return throwError(() => error);
       }),

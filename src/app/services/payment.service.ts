@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpStatusCode } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment.prod';
 import { catchError, Observable, take, throwError } from 'rxjs';
@@ -12,13 +12,26 @@ export class PaymentService {
     private http_client: HttpClient
   ) { }
 
-  purchasePlan(code: string): Observable<any> {
-    let url = environment.API_URL + '/subscriptions';
-    return this.http_client.post(url, { "plan_code": code }).pipe(
+  public purchasePlan(plan: any): Observable<any> {
+    let url = environment.API_URL + '/subscription/purchase';
+    return this.http_client.post(url, plan, {
+      headers: new HttpHeaders({
+        "jwt": "true"
+      })
+    }).pipe(
       catchError((error: HttpErrorResponse) => {
         let message: string = 'Something went wrong';
         return throwError(() => new Error(message));
       })
     );
+  }
+
+  public getBraintreeClientToken(): Observable<any> {
+    let url: string = environment.API_URL + '/subscription/authorize';
+    return this.http_client.post(url, {}, {
+      headers: new HttpHeaders({
+        "jwt": "true"
+      })
+    });
   }
 }

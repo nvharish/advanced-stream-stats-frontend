@@ -1,4 +1,10 @@
 <div class="container">
+    <div *ngIf="show_alert" [ngClass]="alert_type" role="alert">
+        <strong>{{alert_status}}</strong> {{alert_message}}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
     <div class="row">
         <div class="col-lg-4">
             <h4 class="mt-2">Usage Statistics</h4>
@@ -9,8 +15,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title text-muted text-uppercase text-center">silver plan</h5>
-                    <h6 class="text-center font-weight-bold"><span
-                            class="fs-2">$199</span>/mo
+                    <h6 class="text-center font-weight-bold"><span class="fs-2">$199</span>/mo
                     </h6>
                     <hr>
                     <div class="d-flex flex-column justify-content-center">
@@ -19,7 +24,8 @@
                             <li>Billing analytics</li>
                             <li>Bandwidth statics</li>
                         </ul>
-                        <a href="javascript:void(0);" class="btn btn-primary" (click)="purchasePlan('silver')">BUY NOW</a>
+                        <a href="javascript:void(0);" class="btn btn-primary" (click)="purchasePlan('silver')">BUY
+                            NOW</a>
                     </div>
                 </div>
             </div>
@@ -28,8 +34,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title text-muted text-uppercase text-center">gold plan</h5>
-                    <h6 class="text-center font-weight-bold"><span
-                            class="fs-2">$399</span>/yr
+                    <h6 class="text-center font-weight-bold"><span class="fs-2">$399</span>/yr
                     </h6>
                     <hr>
                     <div class="d-flex flex-column justify-content-center">
@@ -43,5 +48,13 @@
                 </div>
             </div>
         </div>
-    </div>    
+    </div>
+    <form (ngSubmit)="purchasePlan('silver')">
+        <input type="text" name="card_name" [(ngModel)]="card_info.card_name" placeholder="Card name">
+        <input type="text" name="card_number" [(ngModel)]="card_info.card_number" placeholder="Card number">
+        <input type="password" name="cvv" [(ngModel)]="card_info.cvv" placeholder="Cvv">
+        <input type="text" name="exp_month" [(ngModel)]="card_info.exp_month" placeholder="Expiry month">
+        <input type="text" name="exp_year" [(ngModel)]="card_info.exp_year" placeholder="Expiry year">
+        <button class="btn btn-primary btn-lg btn-block" type="submit">Pay now</button>
+    </form>
 </div>
