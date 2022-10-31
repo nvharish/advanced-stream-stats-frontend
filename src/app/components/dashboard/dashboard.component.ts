@@ -30,6 +30,7 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     loadBarChart();
+    this.loadPayPal();
   }
 
   purchasePlan(plan_code: string): void {
@@ -105,6 +106,83 @@ export class DashboardComponent implements OnInit {
                     }
                   });
                 }
+              });
+            });
+          });
+        });
+      }
+    });
+  }
+
+  loadPayPal() {
+    this.payment_service.getBraintreeClientToken().subscribe({
+      next: (response: any) => {
+        let client_token = response.client_token;
+        let client = require('braintree-web/client');
+        client.create({
+          authorization: client_token
+        }, (err: any, client_instance: any) => {
+          if (err) {
+            throw new Error(err);
+          }
+          let paypal_checkout = require('braintree-web/paypal-checkout');
+          paypal_checkout.create({
+            client: client_instance
+          }, (err: any, paypal_instance: any) => {
+            if (err) {
+              throw new Error(err);
+            }
+            paypal_instance.loadPayPalSDK({
+              currency: 'USD',
+              intent: 'capture'
+            }, (paypal_btns: any) => {
+              paypal_btns.Buttons({
+                fundingSource: paypal_btns.FUNDING.PAYPAL,
+
+                createOrder: function () {
+                  return paypal_instance.createPayment({
+                    flow: 'checkout', // Required
+                    amount: 10.00, // Required
+                    currency: 'USD', // Required, must match the currency passed in with loadPayPalSDK
+                    requestBillingAgreement: true, // Required
+                    billingAgreementDetails: {
+                      description: 'Description of the billng agreement to display to the customer'
+                    },
+
+                    intent: 'capture', // Must match the intent passed in with loadPayPalSDK
+
+                    enableShippingAddress: true,
+                    shippingAddressEditable: false,
+                    shippingAddressOverride: {
+                      recipientName: 'Scruff McGruff',
+                      line1: '1234 Main St.',
+                      line2: 'Unit 1',
+                      city: 'Chicago',
+                      countryCode: 'US',
+                      postalCode: '60652',
+                      state: 'IL',
+                      phone: '123.456.7890'
+                    }
+                  });
+                },
+
+                onApprove: (data: any, actions: any) => {
+                  return paypal_instance.tokenizePayment(data, function (err: any, payload: any) {
+                    // Submit `payload.nonce` to your server
+                  });
+                },
+
+                onCancel: (data: any) => {
+                  console.log('PayPal payment cancelled', JSON.stringify(data));
+                },
+
+                onError: (err: any) => {
+                  console.error('PayPal error', err);
+                }
+              }).render('#paypal-button').then(() => {
+                // The PayPal button will be rendered in an html element with the ID
+                // `paypal-button`. This function will be called when the PayPal button
+                // is set up and ready to be used
               });
             });
           });
