@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Card } from 'src/app/interfaces/card';
 import { PaymentService } from 'src/app/services/payment.service';
+import { loadScript } from '@paypal/paypal-js';
+import { environment } from 'src/environments/environment.prod';
 
 declare function loadBarChart(): void;
 
@@ -135,55 +137,48 @@ export class DashboardComponent implements OnInit {
             paypal_instance.loadPayPalSDK({
               currency: 'USD',
               intent: 'capture'
-            }, (paypal_btns: any) => {
-              paypal_btns.Buttons({
-                fundingSource: paypal_btns.FUNDING.PAYPAL,
+            }, async () => {
+              let paypal: any;
+              try {
+                paypal = await loadScript({ "client-id": environment.PAYPAL_CLIENT_ID });
+              } catch (error: any) {
 
-                createOrder: function () {
-                  return paypal_instance.createPayment({
-                    flow: 'checkout', // Required
-                    amount: 10.00, // Required
-                    currency: 'USD', // Required, must match the currency passed in with loadPayPalSDK
-                    requestBillingAgreement: true, // Required
-                    billingAgreementDetails: {
-                      description: 'Description of the billng agreement to display to the customer'
+              }
+
+              if (paypal) {
+                try {
+                  await paypal.Buttons({
+                    createOrder: function () {
+                      return paypal_instance.createPayment({
+                        flow: 'checkout', // Required
+                        amount: 10.00, // Required
+                        currency: 'USD', // Required, must match the currency passed in with loadPayPalSDK
+                        requestBillingAgreement: true, // Required
+                        billingAgreementDetails: {
+                          description: 'Description of the billng agreement to display to the customer'
+                        },
+                        intent: 'capture', // Must match the intent passed in with loadPayPalSDK                    
+                      });
                     },
 
-                    intent: 'capture', // Must match the intent passed in with loadPayPalSDK
+                    onApprove: (data: any, actions: any) => {
+                      return paypal_instance.tokenizePayment(data, function (err: any, payload: any) {
+                        // Submit `payload.nonce` to your server
+                      });
+                    },
 
-                    enableShippingAddress: true,
-                    shippingAddressEditable: false,
-                    shippingAddressOverride: {
-                      recipientName: 'Scruff McGruff',
-                      line1: '1234 Main St.',
-                      line2: 'Unit 1',
-                      city: 'Chicago',
-                      countryCode: 'US',
-                      postalCode: '60652',
-                      state: 'IL',
-                      phone: '123.456.7890'
+                    onCancel: (data: any) => {
+                      console.log('PayPal payment cancelled', JSON.stringify(data));
+                    },
+
+                    onError: (err: any) => {
+                      console.error('PayPal error', err);
                     }
-                  });
-                },
-
-                onApprove: (data: any, actions: any) => {
-                  return paypal_instance.tokenizePayment(data, function (err: any, payload: any) {
-                    // Submit `payload.nonce` to your server
-                  });
-                },
-
-                onCancel: (data: any) => {
-                  console.log('PayPal payment cancelled', JSON.stringify(data));
-                },
-
-                onError: (err: any) => {
-                  console.error('PayPal error', err);
+                  }).render("#paypal-button");
+                } catch (error) {
+                  console.error("failed to render the PayPal Buttons", error);
                 }
-              }).render('#paypal-button').then(() => {
-                // The PayPal button will be rendered in an html element with the ID
-                // `paypal-button`. This function will be called when the PayPal button
-                // is set up and ready to be used
-              });
+              }
             });
           });
         });
