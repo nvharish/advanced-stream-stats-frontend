@@ -140,7 +140,10 @@ export class DashboardComponent implements OnInit {
             }, async () => {
               let paypal: any;
               try {
-                paypal = await loadScript({ "client-id": environment.PAYPAL_CLIENT_ID });
+                paypal = await loadScript({
+                  "client-id": environment.PAYPAL_CLIENT_ID,
+                  "disable-funding": environment.DISABLE_PAYPAL_PAYMENT_METHODS
+                });
               } catch (error: any) {
 
               }
@@ -148,10 +151,10 @@ export class DashboardComponent implements OnInit {
               if (paypal) {
                 try {
                   await paypal.Buttons({
-                    createOrder: function () {
+                    createOrder: () => {
                       return paypal_instance.createPayment({
                         flow: 'checkout', // Required
-                        amount: 10.00, // Required
+                        amount: 199.00, // Required
                         currency: 'USD', // Required, must match the currency passed in with loadPayPalSDK
                         requestBillingAgreement: true, // Required
                         billingAgreementDetails: {
@@ -162,8 +165,12 @@ export class DashboardComponent implements OnInit {
                     },
 
                     onApprove: (data: any, actions: any) => {
-                      return paypal_instance.tokenizePayment(data, function (err: any, payload: any) {
-                        // Submit `payload.nonce` to your server
+                      return paypal_instance.tokenizePayment(data, (err: any, payload: any) => {
+                        if (err) {
+                          throw Error(err);
+                        }
+                        console.log(data);
+                        console.log(payload);
                       });
                     },
 
@@ -174,7 +181,11 @@ export class DashboardComponent implements OnInit {
                     onError: (err: any) => {
                       console.error('PayPal error', err);
                     }
-                  }).render("#paypal-button");
+                  }).render("#paypal-button").then(() => {
+                    // The PayPal button will be rendered in an html element with the ID
+                    // `paypal-button`. This function will be called when the PayPal button
+                    // is set up and ready to be used
+                  });
                 } catch (error) {
                   console.error("failed to render the PayPal Buttons", error);
                 }

@@ -13,7 +13,8 @@ export const environment = {
   REFRESH_TOKEN_EXPIRY_DAYS: 1,
   REFRESH_TIMEOUT_SECONDS: 60,
   DEFAULT_API_SERVER_ERROR_MESSAGE: 'Something went wrong',
-  PAYPAL_CLIENT_ID: 'AVeNjvv-IAb2Iw-oZ_-BNeQ_IL452Yz5XUro_ULHrRvLPNIIhyS1JywrDAqeA2e9-cIDfPWLT0bfPo1c'
+  PAYPAL_CLIENT_ID: 'AVeNjvv-IAb2Iw-oZ_-BNeQ_IL452Yz5XUro_ULHrRvLPNIIhyS1JywrDAqeA2e9-cIDfPWLT0bfPo1c',
+  DISABLE_PAYPAL_PAYMENT_METHODS:'card,credit,paylater,bancontact,blik,eps,giropay,ideal,mercadopago,mybank,p24,sepa,sofort,venmo'
 };
 
 /*
