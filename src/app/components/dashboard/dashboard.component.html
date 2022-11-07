@@ -1,61 +1,128 @@
 <div class="container">
-    <div *ngIf="show_alert" [ngClass]="alert_type" role="alert">
-        <strong>{{alert_status}}</strong> {{alert_message}}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-    <div class="row">
-        <div class="col-lg-4">
-            <h4 class="mt-2">Usage Statistics</h4>
-            <canvas id="barChart"></canvas>
+    <div class="row mt-4">
+        <div class="col-lg-2">
+            <ul type="none">
+                <li *ngIf="is_subscribed===true"><a href="javascript:void();" (click)="loadPage('subscription')">Manage subscription</a></li>
+                <li><a href="javascript:void(0)" (click)="logout()">Log out</a></li>
+            </ul>
         </div>
-        <div class="col-lg-4">
-            <h4 class="mt-2 text-muted">To show advance analytics, please subscribe!</h4>
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title text-muted text-uppercase text-center">silver plan</h5>
-                    <h6 class="text-center font-weight-bold"><span class="fs-2">$199</span>/mo
-                    </h6>
-                    <hr>
-                    <div class="d-flex flex-column justify-content-center">
-                        <ul type="none">
-                            <li>Access advanced analytics</li>
-                            <li>Billing analytics</li>
-                            <li>Bandwidth statics</li>
-                        </ul>
-                        <a href="javascript:void(0);" class="btn btn-primary" (click)="purchasePlan('silver')">BUY
-                            NOW</a>
+        <div class="col-lg-10">
+            <div>
+                <h4 class="mt-2">Usage Statistics</h4>
+                <canvas id="barChart"></canvas>
+                <canvas id="lineChart"></canvas>
+            </div>
+            <div *ngIf="current_page==='subscription';">
+                <h4 class="mt-2">My subscription</h4>
+                <table class="w-100 table table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="w-50">Plan Name</th>
+                            <th class="w-25" *ngIf="subscription.is_active===1;else cancel_on">Renews On</th>
+                            <ng-template #cancel_on>
+                                <th class="w-25">Cancels On</th>
+                            </ng-template>
+                            <th class="w-25" *ngIf="subscription.is_active===1">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="w-50">{{subscription.plan_code | uppercase}} {{subscription.currency}}{{subscription.amount}}</td>
+                            <td class="w-25">{{subscription.end_at}}</td>
+                            <td class="w-25" *ngIf="subscription.is_active===1">
+                                <a href="javascript:void(0)" class="btn btn-danger btn-sm" (click)="cancelSubscription()">Cancel subscription</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div *ngIf="is_subscribed===false">
+                <h6 class="mt-2 text-muted">To show advance analytics, please subscribe!</h6>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title text-muted text-uppercase text-center">silver plan</h5>
+                                <h6 class="text-center font-weight-bold"><span class="fs-2">$199</span>/mo
+                                </h6>
+                                <hr>
+                                <div class="d-flex flex-column justify-content-center">
+                                    <ul type="none">
+                                        <li>Access advanced analytics</li>
+                                        <li>Billing analytics</li>
+                                        <li>Bandwidth statics</li>
+                                    </ul>
+                                    <a href="javascript:void(0);" class="btn btn-primary"
+                                        (click)="changeAmount('$199', 'silver', 199)" data-bs-toggle="collapse" href="#card_form_div" aria-expanded="false" aria-controls="card_form_div">BUY
+                                        NOW</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title text-muted text-uppercase text-center">gold plan</h5>
+                                <h6 class="text-center font-weight-bold"><span class="fs-2">$399</span>/yr
+                                </h6>
+                                <hr>
+                                <div class="d-flex flex-column justify-content-center">
+                                    <ul type="none">
+                                        <li>Access advanced analytics</li>
+                                        <li>Billing analytics</li>
+                                        <li>Bandwidth statics</li>
+                                    </ul>
+                                    <a href="javascript:void(0);" class="btn btn-primary"
+                                        (click)="changeAmount('$399', 'gold', 399)" data-bs-toggle="collapse" href="#card_form_div" aria-expanded="false" aria-controls="card_form_div">BUY NOW</a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title text-muted text-uppercase text-center">gold plan</h5>
-                    <h6 class="text-center font-weight-bold"><span class="fs-2">$399</span>/yr
-                    </h6>
-                    <hr>
-                    <div class="d-flex flex-column justify-content-center">
-                        <ul type="none">
-                            <li>Access advanced analytics</li>
-                            <li>Billing analytics</li>
-                            <li>Bandwidth statics</li>
-                        </ul>
-                        <a href="javascript:void(0);" class="btn btn-primary" (click)="purchasePlan('gold')">BUY NOW</a>
-                    </div>
-                </div>
+                <div class="collapse" id="card_form_div">
+                    <h5 class="mt-2 text-danger">Charging amount: {{charging_amount}}</h5>
+                    <h6 class="mt-2 text-muted">Card Details</h6>
+                    <form (ngSubmit)="purchasePlan()">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="card_name">Name</label>
+                                    <input type="text" class="form-control" name="card_name"
+                                        [(ngModel)]="card_info.card_name" placeholder="Your name">
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="card_number">Card number</label>
+                                    <input type="text" class="form-control" name="card_number"
+                                        [(ngModel)]="card_info.card_number" placeholder="Card number" maxlength="20">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-3">
+                                <label for="exp_month">Expiry month</label>
+                                <input type="text" class="form-control" name="exp_month" [(ngModel)]="card_info.exp_month"
+                                    placeholder="Expiry month" maxlength="2">
+                            </div>
+                            <div class="form-group col-sm-3">
+                                <label for="exp_year">Expiry year</label>
+                                <input type="text" class="form-control" name="exp_year" [(ngModel)]="card_info.exp_year"
+                                    placeholder="Expiry year" maxlength="4">
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label for="cvv">Cvv</label>
+                                <input type="password" class="form-control" name="cvv" [(ngModel)]="card_info.cvv"
+                                    placeholder="Cvv" maxlength="4">
+                            </div>
+                        </div>
+                        <div class="d-grid gap-3 mt-2">
+                            <button class="btn btn-primary mt-2" type="submit">PAY NOW</button>
+                            <div id="paypal-button"></div>
+                        </div>
+                    </form>
+                </div>                
             </div>
         </div>
     </div>
-    <form (ngSubmit)="purchasePlan('silver')">
-        <input type="text" name="card_name" [(ngModel)]="card_info.card_name" placeholder="Card name">
-        <input type="text" name="card_number" [(ngModel)]="card_info.card_number" placeholder="Card number">
-        <input type="password" name="cvv" [(ngModel)]="card_info.cvv" placeholder="Cvv">
-        <input type="text" name="exp_month" [(ngModel)]="card_info.exp_month" placeholder="Expiry month">
-        <input type="text" name="exp_year" [(ngModel)]="card_info.exp_year" placeholder="Expiry year">
-        <button class="btn btn-primary btn-lg btn-block" type="submit">Pay now</button>
-        <div id="paypal-button"></div>
-    </form>
 </div>

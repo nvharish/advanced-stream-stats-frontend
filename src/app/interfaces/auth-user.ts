@@ -4,4 +4,6 @@ export interface AuthUser {
     refresh_token: string;
     expires_in: number;
     payload: any;
+    subscription: any;
+    payment_methods: any;
 }

@@ -34,4 +34,13 @@ export class PaymentService {
       })
     });
   }
+
+  public cancelPlan() {
+    let url: string = environment.API_URL + '/subscription/cancel'
+    return this.http_client.post(url, {}, {
+      headers: new HttpHeaders({
+        "jwt": "true"
+      })
+    });
+  }
 }
